@@ -1,4 +1,5 @@
 import os
+import hashlib
 
 class Home_Backup:
     def __init__(self, live_dir, backup_dir):
@@ -30,13 +31,14 @@ class Home_Backup:
 
                 # check if file is backed up
                 if os.path.isfile(back_dir):    # Check if same name file exists
-                    print('Status         : Backed up')
+                    print('Status         : Found, checking if backed up')
                     check_if_duplicate(full_dir, back_dir)
                 else:
                     print('Status         : Not backed up')
 
 
 def check_if_duplicate(path_1, path_2):
+    # Print
     """Checks if two files are a duplicate"""
     # First check both sizes
     size_1 = 0
@@ -50,4 +52,44 @@ def check_if_duplicate(path_1, path_2):
         pass
     if size_1 != size_2:    # If sizes are different, not a duplicate
         return False
+    else:
+        print('File sizes are the same, starting 1024kb hash check')
     
+    # If sizes are the same, do first hash check
+    small_hash_1 = get_hash(path_1, first_chunk_only=True)
+    small_hash_2 = get_hash(path_2, first_chunk_only=True)
+    print(f'small_hash_1 : {small_hash_1}')
+    print(f'small_hash 2 : {small_hash_2}')
+    if small_hash_1 != small_hash_2:
+        return False
+    else:
+        print('1024kb hashes are the same, moving on to full hash')
+
+
+
+# Copied from Todor Minakov at:
+# https://stackoverflow.com/questions/748675/finding-duplicate-files-and-removing-them
+def get_hash(filename, first_chunk_only=False, hash=hashlib.sha1):
+    hashobj = hash()
+    file_object = open(filename, 'rb')
+
+    if first_chunk_only:
+        hashobj.update(file_object.read(1024))
+    else:
+        for chunk in chunk_reader(file_object):
+            hashobj.update(chunk)
+    hashed = hashobj.digest()
+
+    file_object.close()
+    return hashed
+
+# Copied from Todor Minakov at:
+# https://stackoverflow.com/questions/748675/finding-duplicate-files-and-removing-them
+def chunk_reader(fobj, chunk_size=1024):
+    """Generator that reads a file in chunks of bytes"""
+    while True:
+        chunk = fobj.read(chunk_size)
+        if not chunk:
+            return
+        yield chunk
+  
