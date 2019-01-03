@@ -1,7 +1,9 @@
+import os
 from BackupClasses import HomeBackup
-
-livedir = r'C:\Users\jackp\Desktop\LiveTest'
-backupdir = r'C:\Users\jackp\Desktop\BackupTest'
+Desktop = os.path.expanduser("~/Desktop")
+# Desktop = os.path.join(os.environ["HOMEPATH"], "Desktop")
+livedir = os.path.join(Desktop, "LiveTest")
+backupdir = os.path.join(Desktop, "BackupTest")
 
 testfolder = HomeBackup(livedir, backupdir)
 testfolder.filediff()
