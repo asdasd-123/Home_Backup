@@ -1,5 +1,5 @@
 import os
-import hashlib
+
 
 class Home_Backup:
     def __init__(self, live_dir, backup_dir):
@@ -8,12 +8,22 @@ class Home_Backup:
         self.backup_dir = backup_dir
 
     def file_diff(self):
-        """Will print two lists of files. 
-        Missing from backup, and removed from live"""
+        """Will print two lists of files.
+        Missing from backup, and to be removed from backup"""
+        to_be_backed_up = set()
+        to_be_removed_from_backup = set()
 
+        print('================')
+        print('================')
+        print('Looping through live tree')
+        print('================')
+        print('================')
 
-
-
+        # Loop through live folder tree.
+        # Find items in live missing from backup & mark as "backup"
+        # Find conflicts between live and backup.
+        #   Mark backup copy as "to be deleted"
+        #   Mark live copy as "backup"
         for dir_, _, files in os.walk(self.live_dir):
             for file_name in files:
                 print('==========================================')
@@ -22,22 +32,75 @@ class Home_Backup:
                 print(f'Full Directory : {full_dir}')
 
                 rel_dir = os.path.relpath(dir_, self.live_dir)
-                rel_file = os.path.join(rel_dir, file_name) # Relative path
-                print(f'Relative Path  : {rel_file}') 
+                rel_file = os.path.join(rel_dir, file_name)  # Relative path
+                print(f'Relative Path  : {rel_file}')
 
                 # Generate backup path
                 back_dir = os.path.join(self.backup_dir, file_name)
                 print(f'Back Directory : {back_dir}')
 
-                # check if file is backed up
-                if os.path.isfile(back_dir):    # Check if same name file exists
-                    print('Status         : Found, checking if backed up')
-                    check_if_duplicate(full_dir, back_dir)
+                # check if file exists in backup
+                if os.path.isfile(back_dir):  # Check if same name file exists
+                    print('Status         : Found, checking if backed up file is identical')
+                    if not compare_file_size(full_dir, back_dir):
+                        print('Files are different, delete backup')
+                        # Remove current backup
+                        to_be_removed_from_backup.add(rel_file)
+                        # Backup file
+                        to_be_backed_up.add(rel_file)
                 else:
                     print('Status         : Not backed up')
+                    to_be_backed_up.add(rel_file)
+
+        print('================')
+        print('================')
+        print('Moving to loop through backup tree')
+        print('================')
+        print('================')
+
+        # Loop through backup folder tree.
+        # Find items in backup, no longer in live
+        #   Mark as "to be deleted"
+        for dir_, _, files in os.walk(self.backup_dir):
+            for file_name in files:
+                print('==========================================')
+                # Get live path info
+                full_dir = os.path.join(dir_, file_name)    # Full path
+                print(f'Full Directory : {full_dir}')
+
+                rel_dir = os.path.relpath(dir_, self.live_dir)
+                rel_file = os.path.join(rel_dir, file_name)  # Relative path
+                print(f'Relative Path  : {rel_file}')
+
+                # Generate backup path
+                back_dir = os.path.join(self.backup_dir, file_name)
+                print(f'Back Directory : {back_dir}')
+
+                # check if file exists in live
+                if os.path.isfile(full_dir):  # Check if same name file exists
+                    print('Status         : Found, nothing needs doing')
+                else:
+                    print('Status         : Not found in live. Need to delete')
+                    to_be_removed_from_backup.add(rel_file)
+
+        print('================')
+        print('================')
+        print('Files to be deleted')
+        print('================')
+        print('================')
+        for file in to_be_removed_from_backup:
+            print(file)
+
+        print('================')
+        print('================')
+        print('Files to be backed up:')
+        print('================')
+        print('================')
+        for file in to_be_backed_up:
+            print(file)
 
 
-def check_if_duplicate(path_1, path_2):
+def compare_file_size(path_1, path_2):
     # Print
     """Checks if two files are a duplicate"""
     # First check both sizes
@@ -50,46 +113,9 @@ def check_if_duplicate(path_1, path_2):
     except (OSError,):
         # not accessible (permissions, etc) - pass on
         pass
+        return False
     if size_1 != size_2:    # If sizes are different, not a duplicate
         return False
     else:
-        print('File sizes are the same, starting 1024kb hash check')
-    
-    # If sizes are the same, do first hash check
-    small_hash_1 = get_hash(path_1, first_chunk_only=True)
-    small_hash_2 = get_hash(path_2, first_chunk_only=True)
-    print(f'small_hash_1 : {small_hash_1}')
-    print(f'small_hash 2 : {small_hash_2}')
-    if small_hash_1 != small_hash_2:
-        return False
-    else:
-        print('1024kb hashes are the same, moving on to full hash')
-
-
-
-# Copied from Todor Minakov at:
-# https://stackoverflow.com/questions/748675/finding-duplicate-files-and-removing-them
-def get_hash(filename, first_chunk_only=False, hash=hashlib.sha1):
-    hashobj = hash()
-    file_object = open(filename, 'rb')
-
-    if first_chunk_only:
-        hashobj.update(file_object.read(1024))
-    else:
-        for chunk in chunk_reader(file_object):
-            hashobj.update(chunk)
-    hashed = hashobj.digest()
-
-    file_object.close()
-    return hashed
-
-# Copied from Todor Minakov at:
-# https://stackoverflow.com/questions/748675/finding-duplicate-files-and-removing-them
-def chunk_reader(fobj, chunk_size=1024):
-    """Generator that reads a file in chunks of bytes"""
-    while True:
-        chunk = fobj.read(chunk_size)
-        if not chunk:
-            return
-        yield chunk
-  
+        print('File sizes are the same, probably a duplicate')
+        return True
