@@ -1,4 +1,5 @@
 import os
+import shutil
 
 
 class Home_Backup:
@@ -13,11 +14,9 @@ class Home_Backup:
         to_be_backed_up = set()
         to_be_removed_from_backup = set()
 
-        print('================')
-        print('================')
-        print('Looping through live tree')
-        print('================')
-        print('================')
+        print('======================\n'
+              'Looping through live tree\n'
+              '======================')
 
         # Loop through live folder tree.
         # Find items in live missing from backup & mark as "backup"
@@ -36,12 +35,13 @@ class Home_Backup:
                 print(f'Relative Path  : {rel_file}')
 
                 # Generate backup path
-                back_dir = os.path.join(self.backup_dir, file_name)
+                back_dir = os.path.join(self.backup_dir, rel_file)
                 print(f'Back Directory : {back_dir}')
 
                 # check if file exists in backup
                 if os.path.isfile(back_dir):  # Check if same name file exists
-                    print('Status         : Found, checking if backed up file is identical')
+                    print('Status         : Found'
+                          ', checking if backed up file is identical')
                     if not compare_file_size(full_dir, back_dir):
                         print('Files are different, delete backup')
                         # Remove current backup
@@ -52,11 +52,9 @@ class Home_Backup:
                     print('Status         : Not backed up')
                     to_be_backed_up.add(rel_file)
 
-        print('================')
-        print('================')
-        print('Moving to loop through backup tree')
-        print('================')
-        print('================')
+        print('======================\n'
+              'Moving to loop through backup tree\n'
+              '======================')
 
         # Loop through backup folder tree.
         # Find items in backup, no longer in live
@@ -68,40 +66,43 @@ class Home_Backup:
                 full_dir = os.path.join(dir_, file_name)    # Full path
                 print(f'Full Directory : {full_dir}')
 
-                rel_dir = os.path.relpath(dir_, self.live_dir)
+                rel_dir = os.path.relpath(dir_, self.backup_dir)
                 rel_file = os.path.join(rel_dir, file_name)  # Relative path
                 print(f'Relative Path  : {rel_file}')
 
-                # Generate backup path
-                back_dir = os.path.join(self.backup_dir, file_name)
-                print(f'Back Directory : {back_dir}')
+                # Generate live path
+                live_dir = os.path.join(self.live_dir, rel_file)
+                print(f'Back Directory : {live_dir}')
 
                 # check if file exists in live
-                if os.path.isfile(full_dir):  # Check if same name file exists
+                if os.path.isfile(live_dir):  # Check if same name file exists
                     print('Status         : Found, nothing needs doing')
                 else:
                     print('Status         : Not found in live. Need to delete')
                     to_be_removed_from_backup.add(rel_file)
 
-        print('================')
-        print('================')
-        print('Files to be deleted')
-        print('================')
-        print('================')
+        print('======================\nFiles deleted\n======================')
         for file in to_be_removed_from_backup:
+            back_dir_del = os.path.join(self.backup_dir, file)
+            os.remove(back_dir_del)
             print(file)
 
-        print('================')
-        print('================')
-        print('Files to be backed up:')
-        print('================')
-        print('================')
+        print('=====================\nFiles backed up\n=====================')
         for file in to_be_backed_up:
+            live_dir_copy = os.path.join(self.live_dir, file)
+            back_destination = os.path.join(self.backup_dir, file)
+            back_folder = os.path.dirname(back_destination)
+            if not os.path.exists(back_folder):
+                print(f"Folder created at : {back_folder}")
+                os.makedirs(back_folder)
+            shutil.copy2(live_dir_copy, back_destination)
             print(file)
+
+        print('=====================\nFolders deleted\n=====================')
+        empty_folder_sweep(self.backup_dir)
 
 
 def compare_file_size(path_1, path_2):
-    # Print
     """Checks if two files are a duplicate"""
     # First check both sizes
     size_1 = 0
@@ -119,3 +120,25 @@ def compare_file_size(path_1, path_2):
     else:
         print('File sizes are the same, probably a duplicate')
         return True
+
+
+# Credit to jacobtomlinson
+# Idea taken from :
+# https://gist.github.com/jacobtomlinson/9031697
+def empty_folder_sweep(dir):
+    'Sweeps through folder tree and removes empty folders'
+    if not os.path.isdir(dir):
+        return
+
+    # Removes all empty subfolders
+    file_list = os.listdir(dir)
+    if len(file_list):       # If contents found in folder, loop through
+        for f in file_list:   # and check if any are folders
+            full_path = os.path.join(dir, f)
+            if os.path.isdir(full_path):
+                empty_folder_sweep(full_path)
+
+    file_list = os.listdir(dir)
+    if len(file_list) == 0:
+        print(f"Removing empty folder at : {dir}")
+        os.rmdir(dir)
