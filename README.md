@@ -5,7 +5,7 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 
 ## Current Version 0.2
 ### To-Do List
-- Stop the root folder from being deleted when empty.
+- ~~Stop the root folder from being deleted when empty.~~
 - Replace console prints with logging system.
 - Condense whole thing to a single class.
 
@@ -15,10 +15,8 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 - N/a.
 
 #### Fixes
-- 
+- No longer deletes the root folder if the live root folder is empty when removing empty folders.
 
-#### Known Issues
-- 
 
 ### v0.1
 #### Additions

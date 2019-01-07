@@ -125,7 +125,7 @@ def compare_file_size(path_1, path_2):
 # Credit to jacobtomlinson
 # Idea taken from :
 # https://gist.github.com/jacobtomlinson/9031697
-def empty_folder_sweep(dir):
+def empty_folder_sweep(dir, firstloop = True):
     'Sweeps through folder tree and removes empty folders'
     if not os.path.isdir(dir):
         return
@@ -136,9 +136,9 @@ def empty_folder_sweep(dir):
         for f in file_list:   # and check if any are folders
             full_path = os.path.join(dir, f)
             if os.path.isdir(full_path):
-                empty_folder_sweep(full_path)
+                empty_folder_sweep(full_path, False)
 
     file_list = os.listdir(dir)
-    if len(file_list) == 0:
+    if len(file_list) == 0 and not firstloop:
         print(f"Removing empty folder at : {dir}")
         os.rmdir(dir)
