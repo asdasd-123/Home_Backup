@@ -8,6 +8,7 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 - ~~Stop the root folder from being deleted when empty.~~
 - Replace console prints with logging system.
 - Condense whole thing to a single class.
+- Add timer to time how long total Sync takes
 
 ## Changelog
 ### v0.2
