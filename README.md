@@ -13,7 +13,7 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 ## Changelog
 ### v0.2
 #### Additions
-- N/a.
+- Added time taken to output after sync 
 
 #### Fixes
 - No longer deletes the root folder if the live root folder is empty when removing empty folders.
