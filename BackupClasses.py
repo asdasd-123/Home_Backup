@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 
 
 class Home_Backup:
@@ -13,6 +14,7 @@ class Home_Backup:
         Missing from backup, and to be removed from backup"""
         to_be_backed_up = set()
         to_be_removed_from_backup = set()
+        start_time = time.time()
 
         print('======================\n'
               'Looping through live tree\n'
@@ -100,6 +102,11 @@ class Home_Backup:
 
         print('=====================\nFolders deleted\n=====================')
         empty_folder_sweep(self.backup_dir)
+
+        final_time = round(time.time() - start_time,2)
+        print('=====================\n'
+              f'Backup Complete\nTime Taken : {final_time}\n'
+              '=====================')
 
 
 def compare_file_size(path_1, path_2):

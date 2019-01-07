@@ -5,10 +5,10 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 
 ## Current Version 0.2
 ### To-Do List
-- ~~Stop the root folder from being deleted when empty.~~
 - Replace console prints with logging system.
 - Condense whole thing to a single class.
-- Add timer to time how long total Sync takes
+- ~~Stop the root folder from being deleted when empty.~~
+- ~~~Add time taken to ouput after sync~~
 
 ## Changelog
 ### v0.2
