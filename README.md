@@ -8,7 +8,7 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 - Replace console prints with logging system.
 - Condense whole thing to a single class.
 - ~~Stop the root folder from being deleted when empty.~~
-- ~~~Add time taken to ouput after sync~~
+- ~~Add time taken to ouput after sync~~
 
 ## Changelog
 ### v0.2
