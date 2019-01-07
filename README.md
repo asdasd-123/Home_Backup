@@ -10,6 +10,16 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 - Condense whole thing to a single class.
 
 ## Changelog
+### v0.2
+#### Additions
+- N/a.
+
+#### Fixes
+- 
+
+#### Known Issues
+- 
+
 ### v0.1
 #### Additions
 - Currently, the program works fine at syncing the folders.
