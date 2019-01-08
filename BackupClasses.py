@@ -9,7 +9,7 @@ class Home_Backup:
         self.live_dir = live_dir
         self.backup_dir = backup_dir
 
-    # Credit to jacobtomlinson
+    # Credit to jacobtomlinson for empty_folder_sweep
     # Idea taken from :
     # https://gist.github.com/jacobtomlinson/9031697
     def __empty_folder_sweep(self, dir, firstloop = True):
