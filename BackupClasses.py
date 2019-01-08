@@ -9,7 +9,47 @@ class Home_Backup:
         self.live_dir = live_dir
         self.backup_dir = backup_dir
 
-    def file_diff(self):
+    # Credit to jacobtomlinson
+    # Idea taken from :
+    # https://gist.github.com/jacobtomlinson/9031697
+    def __empty_folder_sweep(self, dir, firstloop = True):
+        'Sweeps through folder tree and removes empty folders'
+        if not os.path.isdir(dir):
+            return
+
+        # Removes all empty subfolders
+        file_list = os.listdir(dir)
+        if len(file_list):       # If contents found in folder, loop through
+            for f in file_list:   # and check if any are folders
+                full_path = os.path.join(dir, f)
+                if os.path.isdir(full_path):
+                    self.__empty_folder_sweep(full_path, False)
+
+        file_list = os.listdir(dir)
+        if len(file_list) == 0 and not firstloop:
+            print(f"Removing empty folder at : {dir}")
+            os.rmdir(dir)
+    
+    def __compare_file_size(self, path_1, path_2):
+        """Checks if two files are a duplicate"""
+        # First check both sizes
+        size_1 = 0
+        size_2 = 2
+        try:
+            size_1 = os.path.getsize(path_1)
+            size_2 = os.path.getsize(path_2)
+            print(f'Size 1 : {size_1}   -   Size 2 : {size_2}')
+        except (OSError,):
+            # not accessible (permissions, etc) - pass on
+            pass
+            return False
+        if size_1 != size_2:    # If sizes are different, not a duplicate
+            return False
+        else:
+            print('File sizes are the same, probably a duplicate')
+            return True
+
+    def sync(self):
         """Will print two lists of files.
         Missing from backup, and to be removed from backup"""
         to_be_backed_up = set()
@@ -44,7 +84,7 @@ class Home_Backup:
                 if os.path.isfile(back_dir):  # Check if same name file exists
                     print('Status         : Found'
                           ', checking if backed up file is identical')
-                    if not compare_file_size(full_dir, back_dir):
+                    if not self.__compare_file_size(full_dir, back_dir):
                         print('Files are different, delete backup')
                         # Remove current backup
                         to_be_removed_from_backup.add(rel_file)
@@ -101,7 +141,7 @@ class Home_Backup:
             print(file)
 
         print('=====================\nFolders deleted\n=====================')
-        empty_folder_sweep(self.backup_dir)
+        self.__empty_folder_sweep(self.backup_dir)
 
         final_time = round(time.time() - start_time,2)
         print('=====================\n'
@@ -109,43 +149,7 @@ class Home_Backup:
               '=====================')
 
 
-def compare_file_size(path_1, path_2):
-    """Checks if two files are a duplicate"""
-    # First check both sizes
-    size_1 = 0
-    size_2 = 2
-    try:
-        size_1 = os.path.getsize(path_1)
-        size_2 = os.path.getsize(path_2)
-        print(f'Size 1 : {size_1}   -   Size 2 : {size_2}')
-    except (OSError,):
-        # not accessible (permissions, etc) - pass on
-        pass
-        return False
-    if size_1 != size_2:    # If sizes are different, not a duplicate
-        return False
-    else:
-        print('File sizes are the same, probably a duplicate')
-        return True
 
 
-# Credit to jacobtomlinson
-# Idea taken from :
-# https://gist.github.com/jacobtomlinson/9031697
-def empty_folder_sweep(dir, firstloop = True):
-    'Sweeps through folder tree and removes empty folders'
-    if not os.path.isdir(dir):
-        return
 
-    # Removes all empty subfolders
-    file_list = os.listdir(dir)
-    if len(file_list):       # If contents found in folder, loop through
-        for f in file_list:   # and check if any are folders
-            full_path = os.path.join(dir, f)
-            if os.path.isdir(full_path):
-                empty_folder_sweep(full_path, False)
 
-    file_list = os.listdir(dir)
-    if len(file_list) == 0 and not firstloop:
-        print(f"Removing empty folder at : {dir}")
-        os.rmdir(dir)
