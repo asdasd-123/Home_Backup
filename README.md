@@ -3,8 +3,9 @@
 A lightweight home-backup program to replicate a live folder/file tree onto another drive. All will eventually be built into a single easy to use class.
 The aim is to gain the advantage of a Raid1 setup without needing to clone an entire drive or partition. Can be scheduled to run with task scheduler or ran from an existing python script using the class.
 
-## Current Version 0.3
+## Current Version 0.4
 ### To-Do List
+- Some way of alerting user to failed sync
 - Add parameter for tracking logging.
 - ~~Condense whole thing to a single class.~~
 - ~~Rename method to "sync"~~
@@ -12,6 +13,12 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 - ~~Add time taken to ouput after sync~~
 
 ## Changelog
+### v0.4
+#### Additions
+- 
+
+
+
 ### v0.3
 #### Additions
 - Condensed whole thing to single class
