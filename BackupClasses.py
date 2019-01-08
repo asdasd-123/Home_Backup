@@ -12,7 +12,7 @@ class Home_Backup:
     # Credit to jacobtomlinson for empty_folder_sweep
     # Idea taken from :
     # https://gist.github.com/jacobtomlinson/9031697
-    def __empty_folder_sweep(self, dir, firstloop = True):
+    def __empty_folder_sweep(self, dir, firstloop=True):
         'Sweeps through folder tree and removes empty folders'
         if not os.path.isdir(dir):
             return
@@ -49,16 +49,36 @@ class Home_Backup:
             print('File sizes are the same, probably a duplicate')
             return True
 
-    def sync(self):
-        """Will print two lists of files.
-        Missing from backup, and to be removed from backup"""
+    def sync(self, log=False, log_folder_dir="", log_file_name=""):
+        """
+        Will sync the two file trees, by replicating live_dir onto the backup_dir.
+        set log to True to enable logging. Must include log_dir_path and log_file_name when set to true
+        """
+        
+        # Check to make sure log dir exists before continuing. If not, return
+        if log:
+            log_acceptable = True
+            # if not os.path.isdir(log_folder_dir):
+            #     print("Error: Folder Path invalid - possibly doesn't exist")
+            #     print(f"Directory supplied - {log_folder_dir}")
+            #     log_acceptable = False
+            if log_file_name == "":
+                print("Error: File name missing")
+                print(f"File name supplied - {log_file_name}")
+                log_acceptable = False
+            if not log_acceptable:
+                return
+
+            # Checking if folder needs creating for backup log
+            log_full_path = os.path.join(log_folder_dir, log_file_name) + ".txt"
+            if not os.path.isfile(log_full_path):
+                open(log_full_path, 'a').close()
+        
+        return
+
         to_be_backed_up = set()
         to_be_removed_from_backup = set()
         start_time = time.time()
-
-        print('======================\n'
-              'Looping through live tree\n'
-              '======================')
 
         # Loop through live folder tree.
         # Find items in live missing from backup & mark as "backup"
