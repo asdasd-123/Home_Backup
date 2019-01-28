@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from datetime import datetime
 
 
 class Home_Backup:
@@ -27,9 +28,9 @@ class Home_Backup:
 
         file_list = os.listdir(dir)
         if len(file_list) == 0 and not firstloop:
-            print(f"Removing empty folder at : {dir}")
+            # print(f"Removing empty folder at : {dir}")
             os.rmdir(dir)
-    
+
     def __compare_file_size(self, path_1, path_2):
         """Checks if two files are a duplicate"""
         # First check both sizes
@@ -38,7 +39,7 @@ class Home_Backup:
         try:
             size_1 = os.path.getsize(path_1)
             size_2 = os.path.getsize(path_2)
-            print(f'Size 1 : {size_1}   -   Size 2 : {size_2}')
+            # print(f'Size 1 : {size_1}   -   Size 2 : {size_2}')
         except (OSError,):
             # not accessible (permissions, etc) - pass on
             pass
@@ -46,15 +47,17 @@ class Home_Backup:
         if size_1 != size_2:    # If sizes are different, not a duplicate
             return False
         else:
-            print('File sizes are the same, probably a duplicate')
+            # print('File sizes are the same, probably a duplicate')
             return True
 
     def sync(self, log=False, log_folder_dir="", log_file_name=""):
         """
-        Will sync the two file trees, by replicating live_dir onto the backup_dir.
-        set log to True to enable logging. Must include log_dir_path and log_file_name when set to true
+        Will sync the two file trees, by replicating live_dir onto the
+        backup_dir.
+        set log to True to enable logging. Must include log_dir_path and
+        log_file_name when set to true
         """
-        
+
         # Check to make sure log dir exists before continuing. If not, return
         if log:
             log_acceptable = True
@@ -70,14 +73,17 @@ class Home_Backup:
                 return
 
             # Checking if folder needs creating for backup log
-            log_full_path = os.path.join(log_folder_dir, log_file_name) + ".txt"
+            if not os.path.exists(log_folder_dir):
+                os.makedirs(log_folder_dir)
+
+            log_full_path = os.path.join(log_folder_dir, log_file_name)
+            log_full_path += ".txt"
             if not os.path.isfile(log_full_path):
                 open(log_full_path, 'a').close()
-        
-        return
 
         to_be_backed_up = set()
         to_be_removed_from_backup = set()
+        folders_created = set()
         start_time = time.time()
 
         # Loop through live folder tree.
@@ -87,89 +93,120 @@ class Home_Backup:
         #   Mark live copy as "backup"
         for dir_, _, files in os.walk(self.live_dir):
             for file_name in files:
-                print('==========================================')
+                # print('==========================================')
                 # Get live path info
                 full_dir = os.path.join(dir_, file_name)    # Full path
-                print(f'Full Directory : {full_dir}')
+                # print(f'Full Directory : {full_dir}')
 
                 rel_dir = os.path.relpath(dir_, self.live_dir)
                 rel_file = os.path.join(rel_dir, file_name)  # Relative path
-                print(f'Relative Path  : {rel_file}')
+                # print(f'Relative Path  : {rel_file}')
 
                 # Generate backup path
                 back_dir = os.path.join(self.backup_dir, rel_file)
-                print(f'Back Directory : {back_dir}')
+                # print(f'Back Directory : {back_dir}')
 
                 # check if file exists in backup
                 if os.path.isfile(back_dir):  # Check if same name file exists
-                    print('Status         : Found'
-                          ', checking if backed up file is identical')
+                    # print('Status         : Found'
+                    #       ', checking if backed up file is identical')
                     if not self.__compare_file_size(full_dir, back_dir):
-                        print('Files are different, delete backup')
+                        # print('Files are different, delete backup')
                         # Remove current backup
                         to_be_removed_from_backup.add(rel_file)
                         # Backup file
                         to_be_backed_up.add(rel_file)
                 else:
-                    print('Status         : Not backed up')
+                    # print('Status         : Not backed up')
                     to_be_backed_up.add(rel_file)
 
-        print('======================\n'
-              'Moving to loop through backup tree\n'
-              '======================')
+        # print('======================\n'
+        #       'Moving to loop through backup tree\n'
+        #       '======================')
 
         # Loop through backup folder tree.
         # Find items in backup, no longer in live
         #   Mark as "to be deleted"
         for dir_, _, files in os.walk(self.backup_dir):
             for file_name in files:
-                print('==========================================')
+                # print('==========================================')
                 # Get live path info
                 full_dir = os.path.join(dir_, file_name)    # Full path
-                print(f'Full Directory : {full_dir}')
+                # print(f'Full Directory : {full_dir}')
 
                 rel_dir = os.path.relpath(dir_, self.backup_dir)
                 rel_file = os.path.join(rel_dir, file_name)  # Relative path
-                print(f'Relative Path  : {rel_file}')
+                # print(f'Relative Path  : {rel_file}')
 
                 # Generate live path
                 live_dir = os.path.join(self.live_dir, rel_file)
-                print(f'Back Directory : {live_dir}')
+                # print(f'Back Directory : {live_dir}')
 
                 # check if file exists in live
                 if os.path.isfile(live_dir):  # Check if same name file exists
-                    print('Status         : Found, nothing needs doing')
+                    # print('Status       : Found, nothing needs doing')
+                    rel_dir = rel_dir   # needed to stop the else from failing
                 else:
-                    print('Status         : Not found in live. Need to delete')
                     to_be_removed_from_backup.add(rel_file)
+                    # print('Status       : Not found in live. Need to delete')
 
-        print('======================\nFiles deleted\n======================')
+        # print('=====================\nFiles deleted\n=====================')
         for file in to_be_removed_from_backup:
             back_dir_del = os.path.join(self.backup_dir, file)
             os.remove(back_dir_del)
-            print(file)
+            # print(file)
 
-        print('=====================\nFiles backed up\n=====================')
+        # print('====================\nFiles backed up\n====================')
         for file in to_be_backed_up:
             live_dir_copy = os.path.join(self.live_dir, file)
             back_destination = os.path.join(self.backup_dir, file)
             back_folder = os.path.dirname(back_destination)
             if not os.path.exists(back_folder):
-                print(f"Folder created at : {back_folder}")
+                # print(f"Folder created at : {back_folder}")
+                folders_created.add(back_folder)
                 os.makedirs(back_folder)
             shutil.copy2(live_dir_copy, back_destination)
-            print(file)
+            # print(file)
 
-        print('=====================\nFolders deleted\n=====================')
+        # print('====================\nFolders deleted\n====================')
         self.__empty_folder_sweep(self.backup_dir)
 
-        final_time = round(time.time() - start_time,2)
-        print('=====================\n'
-              f'Backup Complete\nTime Taken : {final_time}\n'
-              '=====================')
+        final_time = round(time.time() - start_time, 2)
+        # print('=====================\n'
+        #       f'Backup Complete\nTime Taken : {final_time}\n'
+        #       '=====================')
 
+        # Add items to log
+        if log:
+            try:
+                log_date = datetime.strftime(datetime.now(), '%Y, %b %d - %X')
+                log = open(log_full_path, "a+")     # Open file to append
+                div = "=" * 70                      # Set divider length
+                log.write("\n\n" + div)
+                log.write("\n" + (" " * 47) + log_date)
+                log.write("\n" + (" " * 47))
+                log.write("Time taken : " + str(round(final_time, 2)) + "s")
+                log.write("\n" + div)
 
+                div = "=" * 40
+                log.write("\n" + div)
+                log.write("\nFiles deleted from backup:")
+                log.write("\n" + div)
+                for file in to_be_removed_from_backup:
+                    log.write("\n     " + file)
 
+                log.write("\n" + div)
+                log.write("\nFolders created:")
+                log.write("\n" + div)
+                for folder in folders_created:
+                    log.write("\n     " + folder)
 
+                log.write("\n" + div)
+                log.write("\nFiles backed up:")
+                log.write("\n" + div)
+                for file in to_be_backed_up:
+                    log.write("\n     " + file)
 
-
+                print("Log Complete")
+            finally:
+                log.close()
