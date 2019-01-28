@@ -6,7 +6,9 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 ## Current Version 0.4
 ### To-Do List
 - Some way of alerting user to failed sync
-- Add parameter for tracking logging.
+- Add different Types of logging (Full/Quick etc)
+- swap over to lists instead of sets if logging enabled.
+- ~~Add parameter for tracking logging.~~
 - ~~Condense whole thing to a single class.~~
 - ~~Rename method to "sync"~~
 - ~~Stop the root folder from being deleted when empty.~~
@@ -15,7 +17,7 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 ## Changelog
 ### v0.4
 #### Additions
-- 
+- Added basic logging option when syncing
 
 
 
