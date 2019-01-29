@@ -176,7 +176,8 @@ class Home_Backup:
         #       f'Backup Complete\nTime Taken : {final_time}\n'
         #       '=====================')
 
-        # Add items to log
+        # Add items to log (try/finally included to guarentee file
+        # closure even on fail)
         if log:
             try:
                 log_date = datetime.strftime(datetime.now(), '%Y, %b %d - %X')
