@@ -7,11 +7,12 @@ The aim is to gain the advantage of a Raid1 setup without needing to clone an en
 ### To-Do List
 - Some way of alerting user to failed sync
 - Add different Types of logging (Full/Quick etc)
-- swap over to lists instead of sets if logging enabled.
-- ~~Add parameter for tracking logging.~~
-- ~~Condense whole thing to a single class.~~
+- Swap over to lists instead of sets if logging enabled
+- Ignore "thumbs.db" files
+- ~~Add parameter for tracking logging~~
+- ~~Condense whole thing to a single class~~
 - ~~Rename method to "sync"~~
-- ~~Stop the root folder from being deleted when empty.~~
+- ~~Stop the root folder from being deleted when empty~~
 - ~~Add time taken to ouput after sync~~
 
 ## Changelog
